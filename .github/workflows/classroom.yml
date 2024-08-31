@@ -1,0 +1,33 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: 'exploit it '
+      id: exploit-it
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: 'exploit it '
+        setup-command: "./hack.sh"
+        command: "./timer.sh"
+        input: 8+89
+        expected-output: '9'
+        comparison-method: contains
+        timeout: 10
+        max-score: 7
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        EXPLOIT-IT_RESULTS: "${{steps.exploit-it.outputs.result}}"
+      with:
+        runners: exploit-it
